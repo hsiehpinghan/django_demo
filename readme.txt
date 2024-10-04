@@ -28,44 +28,10 @@ poetry run python manage.py createsuperuser
 poetry run python manage.py startapp chatbot
 poetry run python manage.py runserver
 
+# export
+cd /home/hsiehpinghan/git/django_demo/
+poetry export -f requirements.txt -o requirements.txt --without-hashes
+docker build -t django_demo:0.1.0 .
 
-
-
-
-
-poetry run python manage.py startapp commons
-poetry run python manage.py startapp assistants
-poetry run python manage.py startapp runs
-poetry run python manage.py startapp threads
-poetry run python manage.py migrate
-poetry run python manage.py createsuperuser
-poetry run python manage.py makemigrations
-poetry run python manage.py makemigrations commons --name initial_migration
-poetry run python manage.py migrate
-poetry run python manage.py runserver
-poetry run python manage.py test commons
-poetry run python manage.py test assistants
-poetry run python manage.py test runs
-
-
-
-# init django
-cd C:\Users\thank\git\django_demo
-poetry run django-admin startproject app
-mkdir C:\Users\thank\git\django_demo\app\app\templates
-cd C:\Users\thank\git\django_demo\app
-poetry run python manage.py runserver
-
-# init tailwind
-cd C:\Users\thank\git\django_demo
-fnm env --use-on-cd | Out-String | Invoke-Expression
-npm init -y
-npm view tailwindcss versions
-npm install -D tailwindcss@3.4.11
-npx tailwindcss init
-npm install -D @tailwindcss/forms
-npm install -D @tailwindcss/typography
-npm install -D prettier prettier-plugin-tailwindcss
-mkdir C:\Users\thank\git\django_demo\gpts\static
-mkdir C:\Users\thank\git\django_demo\gpts\static\src
-npx tailwindcss -i C:\Users\thank\git\django_demo\gpts\static\src\styles.css -o C:\Users\thank\git\django_demo\gpts\static\dist\styles.css --watch
+docker login
+docker push myapp:1.0
