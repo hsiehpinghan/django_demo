@@ -139,7 +139,7 @@
       const chatHistory = document.getElementById("chat-history");
       const chatList = document.getElementById("chat-list");
       const newChatButton = document.getElementById("new-chat");
-
+      let threadId = null;
       function handleSubmit(event) {
         event.preventDefault();
         const input = document.getElementById("chat-input");
@@ -177,7 +177,21 @@
         chatHistory.scrollTop = chatHistory.scrollHeight;
       }
 
-      function addChatToList(chatTitle) {
+      function addChatToList(name) {
+        fetch("/chatbot/add_thread/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            csrfmiddlewaretoken: "{{ csrf_token }}",
+            name: name,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            threadId = data.thread_id;
+          });
         const chatItem = document.createElement("div");
         chatItem.classList.add(
           "chat-item",
@@ -200,7 +214,7 @@
         icon.setAttribute("viewBox", "0 0 24 24");
 
         const titleSpan = document.createElement("span");
-        titleSpan.textContent = chatTitle;
+        titleSpan.textContent = name;
 
         chatItem.appendChild(icon);
         chatItem.appendChild(titleSpan);
@@ -209,11 +223,11 @@
 
       newChatButton.addEventListener("click", () => {
         chatHistory.innerHTML = "";
-        addChatToList("新對話 " + (chatList.children.length + 1));
+        addChatToList("對話 " + (chatList.children.length + 1));
       });
 
       // 初始化時添加一個新對話
-      addChatToList("新對話 1");
+      addChatToList("對話 1");
     </script>
   </body>
 </html>
