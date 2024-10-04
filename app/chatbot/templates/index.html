@@ -100,15 +100,31 @@
           class="bg-blue-600 text-white p-4 flex justify-between items-center"
         >
           <h1 class="text-2xl">Chat</h1>
-          <form method="POST" class="inline" action="{% url 'logout' %}">
-            {% csrf_token %}
+          <div class="flex items-center">
+            <input
+              type="file"
+              id="file-input"
+              accept=".txt"
+              style="display: none"
+              onchange="handleFileUpload(event)"
+            />
             <button
-              type="submit"
-              class="bg-red-400 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+              id="upload-button"
+              class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded mr-2"
+              onclick="document.getElementById('file-input').click();"
             >
-              登出
+              上傳
             </button>
-          </form>
+            <form method="POST" class="inline" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button
+                type="submit"
+                class="bg-red-400 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+              >
+                登出
+              </button>
+            </form>
+          </div>
         </header>
         <main class="flex flex-col flex-grow">
           <div id="chat-history" class="chat-history mb-4">
@@ -145,6 +161,7 @@
       const chatHistory = document.getElementById("chat-history");
       const chatList = document.getElementById("chat-list");
       const newChatButton = document.getElementById("new-chat");
+      const fileInput = document.getElementById("file-input");
       let threads = [];
       let current_thread = null;
 
@@ -246,6 +263,31 @@
           });
           addChatToList("對話 " + (threads.length + 1), true);
         });
+
+      function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (file && file.type === "text/plain") {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("thread_id", current_thread.id);
+          formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+          fetch("/chatbot/upload_file/", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                addMessage(`文件 "${file.name}" 已成功上傳`, "ai");
+              } else {
+                addMessage(`文件 "${file.name}" 上傳失敗: ${data.error}`, "ai");
+              }
+            });
+        } else {
+          alert("請上傳 .txt 文件");
+        }
+      }
     </script>
   </body>
 </html>

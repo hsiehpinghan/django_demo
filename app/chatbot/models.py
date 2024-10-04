@@ -18,3 +18,11 @@ class Message(models.Model):
 
     def __str__(self):
         return f"Message for {self.thread.name}"
+
+class File(models.Model):
+    file = models.FileField(upload_to='files/')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"File for {self.created_at}"
