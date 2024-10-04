@@ -18,7 +18,9 @@ poetry add djangorestframework==3.14.0
 poetry add langchain-huggingface==0.0.3
 poetry add langchain-openai==0.1.10
 poetry add langchain==0.2.7
+poetry add langchain-community==0.2.1
 poetry add python-dotenv==1.0.1
+poetry add faiss-cpu==1.7.4
 cd /home/hsiehpinghan/git/django_demo/app
 poetry run python manage.py makemigrations
 poetry run python manage.py migrate
