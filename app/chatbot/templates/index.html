@@ -189,7 +189,8 @@
         chatHistory.scrollTop = chatHistory.scrollHeight;
       }
 
-      function addChatToList(name, is_new) {
+      function addChatToList(thread, is_new) {
+        name = thread.name;
         if (is_new) {
           fetch("/chatbot/add_thread/", {
             method: "POST",
@@ -203,10 +204,31 @@
           })
             .then((response) => response.json())
             .then((data) => {
+              thread = data;
               current_thread = data;
             });
         }
         const chatItem = document.createElement("div");
+        chatItem.addEventListener("click", () => {
+          fetch("/chatbot/get_messages/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              csrfmiddlewaretoken: "{{ csrf_token }}",
+              thread_id: thread.id,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              chatHistory.innerHTML = "";
+              data.forEach((message) => {
+                addMessage(message.content, message.type);
+              });
+              current_thread = thread;
+            });
+        });
         chatItem.classList.add(
           "chat-item",
           "p-2",
@@ -226,10 +248,8 @@
         icon.innerHTML =
           '<path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>';
         icon.setAttribute("viewBox", "0 0 24 24");
-
         const titleSpan = document.createElement("span");
         titleSpan.textContent = name;
-
         chatItem.appendChild(icon);
         chatItem.appendChild(titleSpan);
         chatList.prepend(chatItem);
@@ -237,7 +257,10 @@
 
       newChatButton.addEventListener("click", () => {
         chatHistory.innerHTML = "";
-        addChatToList("對話 " + (chatList.children.length + 1));
+        addChatToList(
+          { name: "對話 " + (chatList.children.length + 1), id: null },
+          true
+        );
       });
       fetch("/chatbot/get_threads/")
         .then((response) => response.json())
@@ -245,9 +268,12 @@
           threads = data;
           // 初始化時添加一個新對話
           threads.forEach((thread) => {
-            addChatToList(thread.name, false);
+            addChatToList(thread, false);
           });
-          addChatToList("對話 " + (threads.length + 1), true);
+          addChatToList(
+            { name: "對話 " + (threads.length + 1), id: null },
+            true
+          );
         });
 
       function handleFileUpload(event) {

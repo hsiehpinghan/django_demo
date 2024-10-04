@@ -9,7 +9,7 @@ from langchain_core.documents import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from .forms import CreateThread, CreateMessage, CreateFile
 from .models import Thread, Message, File
-from .serializers import ThreadSerializer
+from .serializers import ThreadSerializer, MessageSerializer
 from langchain_community.vectorstores import FAISS
 from langchain.chains.retrieval_qa.base import RetrievalQA
 
@@ -58,6 +58,13 @@ def add_message(request):
     result = qa.run(message.content)
     Message(content=result, type='ai', thread=message.thread).save()
     return Response({'content': result}, status=200)
+
+@api_view(['POST'])
+def get_messages(request):
+    thread = Thread.objects.get(id=request.POST.get('thread_id'))
+    messages = Message.objects.filter(thread=thread).order_by('created_at')
+    serializer = MessageSerializer(messages, many=True)
+    return Response(serializer.data, status=200)
 
 @api_view(['POST'])
 def upload_file(request):

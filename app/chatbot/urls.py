@@ -8,5 +8,6 @@ urlpatterns = [
     path('get_threads/', views.get_threads, name='get_threads'),
     path('add_thread/', views.add_thread, name='add_thread'),
     path('add_message/', views.add_message, name='add_message'),
+    path('get_messages/', views.get_messages, name='get_messages'),
     path('upload_file/', views.upload_file, name='upload_file'),
 ]
