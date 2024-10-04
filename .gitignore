@@ -1,0 +1,6 @@
+*.pyc
+/bin/
+*-checkpoint.ipynb
+.venv/
+db.sqlite3
+node_modules/

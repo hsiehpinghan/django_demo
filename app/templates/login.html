@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>登入 - Chat System</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .login-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      .login-form {
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .form-container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+      }
+    </style>
+  </head>
+  <body class="bg-blue-50">
+    <div class="login-container">
+      <header class="bg-blue-600 text-white p-4 text-center">
+        <h1 class="text-2xl">登入 Chat AI</h1>
+      </header>
+      <main class="login-form">
+        <div class="form-container">
+          <form method="POST" id="login-form" class="space-y-4">
+            {% csrf_token %}
+            <div>
+              <label
+                for="username"
+                class="block text-sm font-medium text-gray-700"
+                >用戶名</label
+              >
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                class="mt-1 block w-full px-3 py-2 bg-white border border-blue-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label
+                for="password"
+                class="block text-sm font-medium text-gray-700"
+                >密碼</label
+              >
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                class="mt-1 block w-full px-3 py-2 bg-white border border-blue-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <button
+                type="submit"
+                class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                登入
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
