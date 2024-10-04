@@ -16,6 +16,7 @@ poetry env use 3.10
 poetry add django==5.0.1
 poetry add djangorestframework==3.14.0
 cd /home/hsiehpinghan/git/django_demo/app
+poetry run python manage.py makemigrations
 poetry run python manage.py migrate
 poetry run python manage.py createsuperuser
 poetry run python manage.py startapp chatbot
