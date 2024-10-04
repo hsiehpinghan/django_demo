@@ -15,6 +15,10 @@ poetry config virtualenvs.in-project true
 poetry env use 3.10
 poetry add django==5.0.1
 poetry add djangorestframework==3.14.0
+poetry add langchain-huggingface==0.0.3
+poetry add langchain-openai==0.1.10
+poetry add langchain==0.2.7
+poetry add python-dotenv==1.0.1
 cd /home/hsiehpinghan/git/django_demo/app
 poetry run python manage.py makemigrations
 poetry run python manage.py migrate

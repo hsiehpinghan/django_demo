@@ -1,10 +1,16 @@
+import os
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from langchain_openai import ChatOpenAI
 from .forms import CreateThread, CreateMessage
 from .models import Thread, Message
 from .serializers import ThreadSerializer
+
+client = ChatOpenAI(model=os.environ['LLM_MODEL'],
+                    api_key=os.environ['LLM_API_KEY'],
+                    base_url=os.environ['LLM_API_BASE'])
 
 # Create your views here.
 #@login_required(login_url='/login/')
@@ -36,5 +42,6 @@ def add_message(request):
             message.type = 'user'
             message.thread = Thread.objects.get(id=request.POST.get('thread_id'))
             message.save()
-    return Response({'content': 'hi hi'}, status=200)
+    response = client.invoke(message.content)
+    return Response({'content': response.content}, status=200)
 
