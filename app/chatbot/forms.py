@@ -7,6 +7,8 @@ class CreateThread(forms.ModelForm):
         fields = ['name']
 
 class CreateMessage(forms.ModelForm):
+    thread_id = forms.IntegerField(widget=forms.HiddenInput())
+    
     class Meta:
         model = Message
-        fields = ['type','content', 'thread']
+        fields = ['content', 'thread_id']

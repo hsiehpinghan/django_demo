@@ -33,8 +33,7 @@ def add_message(request):
         form = CreateMessage(request.POST)
         if form.is_valid():
             message = form.save(commit=False)
-            message.type = 'human'
-            message.content = request.POST.get('message')
+            message.type = 'user'
             message.thread = Thread.objects.get(id=request.POST.get('thread_id'))
             message.save()
     return Response({'content': 'hi hi'}, status=200)

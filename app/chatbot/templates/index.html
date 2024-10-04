@@ -115,11 +115,17 @@
             <!-- Chat history will be dynamically inserted here -->
           </div>
           <div class="input-container">
-            <form method="POST" id="chat-form" class="flex w-full">
+            <form
+              method="POST"
+              id="chat-form"
+              class="flex w-full"
+              action="{% url 'chatbot:add_message' %}"
+            >
               {% csrf_token %}
               <input
-                id="chat-input"
+                id="content-input"
                 type="text"
+                name="content"
                 class="flex-grow p-2 border border-blue-300 rounded-l"
                 placeholder="輸入您的訊息..."
               />
@@ -141,25 +147,27 @@
       const newChatButton = document.getElementById("new-chat");
       let threads = [];
       let current_thread = null;
+
       function handleSubmit(event) {
         event.preventDefault();
-        const input = document.getElementById("chat-input");
-        const message = input.value;
+        const input = document.getElementById("content-input");
+        const content = input.value;
         input.value = "";
-        addMessage(message, "user");
-        fetch("/response/", {
+        addMessage(content, "user");
+        fetch("/chatbot/add_message/", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
           },
           body: new URLSearchParams({
             csrfmiddlewaretoken: "{{ csrf_token }}",
-            message: message,
+            content: content,
+            thread_id: current_thread.id,
           }),
         })
           .then((response) => response.json())
           .then((data) => {
-            addMessage(data.message, "ai");
+            addMessage(data.content, "ai");
           });
       }
 
