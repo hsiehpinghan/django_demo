@@ -139,7 +139,8 @@
       const chatHistory = document.getElementById("chat-history");
       const chatList = document.getElementById("chat-list");
       const newChatButton = document.getElementById("new-chat");
-      let threadId = null;
+      let threads = [];
+      let current_thread = null;
       function handleSubmit(event) {
         event.preventDefault();
         const input = document.getElementById("chat-input");
@@ -177,21 +178,23 @@
         chatHistory.scrollTop = chatHistory.scrollHeight;
       }
 
-      function addChatToList(name) {
-        fetch("/chatbot/add_thread/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams({
-            csrfmiddlewaretoken: "{{ csrf_token }}",
-            name: name,
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            threadId = data.thread_id;
-          });
+      function addChatToList(name, is_new) {
+        if (is_new) {
+          fetch("/chatbot/add_thread/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              csrfmiddlewaretoken: "{{ csrf_token }}",
+              name: name,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              current_thread = data;
+            });
+        }
         const chatItem = document.createElement("div");
         chatItem.classList.add(
           "chat-item",
@@ -218,16 +221,23 @@
 
         chatItem.appendChild(icon);
         chatItem.appendChild(titleSpan);
-        chatList.appendChild(chatItem);
+        chatList.prepend(chatItem);
       }
 
       newChatButton.addEventListener("click", () => {
         chatHistory.innerHTML = "";
         addChatToList("對話 " + (chatList.children.length + 1));
       });
-
-      // 初始化時添加一個新對話
-      addChatToList("對話 1");
+      fetch("/chatbot/get_threads/")
+        .then((response) => response.json())
+        .then((data) => {
+          threads = data;
+          // 初始化時添加一個新對話
+          threads.forEach((thread) => {
+            addChatToList(thread.name, false);
+          });
+          addChatToList("對話 " + (threads.length + 1), true);
+        });
     </script>
   </body>
 </html>
