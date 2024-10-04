@@ -21,17 +21,19 @@ embeddings = OpenAIEmbeddings(api_key=os.environ['LLM_API_KEY'],
 index_path = '../faiss_index'
 
 # Create your views here.
-#@login_required(login_url='/login/')
+@login_required(login_url='/login/')
 def index(request):
     return render(request, 'index.html')
 
 @api_view(['GET'])
+@login_required(login_url='/login/')
 def get_threads(request):
     threads = Thread.objects.filter(user=request.user).order_by('created_at')
     serializer = ThreadSerializer(threads, many=True)
     return Response(serializer.data, status=200)
 
 @api_view(['POST'])
+@login_required(login_url='/login/')
 def add_thread(request):
     form = CreateThread(request.POST)
     if form.is_valid() is False:
@@ -42,6 +44,7 @@ def add_thread(request):
     return Response({'id': thread.id, 'name': thread.name}, status=200)
 
 @api_view(['POST'])
+@login_required(login_url='/login/')
 def add_message(request):
     form = CreateMessage(request.POST)
     if form.is_valid() is False:
@@ -60,6 +63,7 @@ def add_message(request):
     return Response({'content': result}, status=200)
 
 @api_view(['POST'])
+@login_required(login_url='/login/')
 def get_messages(request):
     thread = Thread.objects.get(id=request.POST.get('thread_id'))
     messages = Message.objects.filter(thread=thread).order_by('created_at')
@@ -67,6 +71,7 @@ def get_messages(request):
     return Response(serializer.data, status=200)
 
 @api_view(['POST'])
+@login_required(login_url='/login/')
 def upload_file(request):
     form = CreateFile(request.POST, request.FILES)
     if form.is_valid() is False:
