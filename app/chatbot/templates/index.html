@@ -66,6 +66,18 @@
       .chat-item:hover {
         transform: translateX(5px);
       }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+      .animate-bounce {
+        animation: bounce 0.6s infinite;
+      }
     </style>
   </head>
   <body class="bg-blue-50">
@@ -143,6 +155,18 @@
         </main>
       </div>
     </div>
+    <!-- 在 <body> 標籤的結束前添加以下代碼 -->
+    <div
+      id="loading-spinner"
+      class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white p-5 rounded-lg flex items-center">
+        <div
+          class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500 mr-3"
+        ></div>
+        <span class="text-gray-800">正在上傳文件...</span>
+      </div>
+    </div>
     <script>
       const chatHistory = document.getElementById("chat-history");
       const chatList = document.getElementById("chat-list");
@@ -155,22 +179,32 @@
         event.preventDefault();
         const input = document.getElementById("content-input");
         const content = input.value;
+        if (content.trim() === "") return;
+
         input.value = "";
         addMessage(content, "user");
+        addLoadingMessage(); // 添加一個加載中的消息
+
         fetch("/chatbot/add_message/", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}",
           },
           body: new URLSearchParams({
-            csrfmiddlewaretoken: "{{ csrf_token }}",
             content: content,
             thread_id: current_thread.id,
           }),
         })
           .then((response) => response.json())
           .then((data) => {
+            removeLoadingMessage(); // 移除加載中的消息
             addMessage(data.content, "ai");
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            removeLoadingMessage(); // 移除加載中的消息
+            addMessage("抱歉，發生錯誤。請稍後再試。", "ai");
           });
       }
 
@@ -276,6 +310,14 @@
           );
         });
 
+      function showLoadingSpinner() {
+        document.getElementById("loading-spinner").classList.remove("hidden");
+      }
+
+      function hideLoadingSpinner() {
+        document.getElementById("loading-spinner").classList.add("hidden");
+      }
+
       function handleFileUpload(event) {
         const file = event.target.files[0];
         if (file && file.type === "text/plain") {
@@ -284,20 +326,53 @@
           formData.append("thread_id", current_thread.id);
           formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
 
+          showLoadingSpinner(); // 顯示全屏加載動畫
+
           fetch("/chatbot/upload_file/", {
             method: "POST",
             body: formData,
           })
             .then((response) => response.json())
             .then((data) => {
+              hideLoadingSpinner(); // 隱藏全屏加載動畫
               if (data.success) {
                 addMessage(`文件 "${file.name}" 已成功上傳`, "ai");
               } else {
                 addMessage(`文件 "${file.name}" 上傳失敗: ${data.error}`, "ai");
               }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              hideLoadingSpinner(); // 確保在發生錯誤時也隱藏加載動畫
+              addMessage("上傳文件時發生錯誤。請稍後再試。", "ai");
             });
         } else {
           alert("請上傳 .txt 文件");
+        }
+      }
+
+      function addLoadingMessage() {
+        const loadingMessage = document.createElement("div");
+        loadingMessage.id = "loading-message";
+        loadingMessage.classList.add("chat-message", "ai");
+        loadingMessage.innerHTML = `
+          <div class="message ai flex items-center p-3">
+            <div class="loading-dots flex space-x-1">
+              <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
+              <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+              <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+            </div>
+            <span class="ml-2 text-gray-600">AI 正在思考中...</span>
+          </div>
+        `;
+        chatHistory.appendChild(loadingMessage);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      }
+
+      function removeLoadingMessage() {
+        const loadingMessage = document.getElementById("loading-message");
+        if (loadingMessage) {
+          loadingMessage.remove();
         }
       }
     </script>
