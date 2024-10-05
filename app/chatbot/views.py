@@ -6,6 +6,9 @@ from rest_framework.response import Response
 from langchain_openai import ChatOpenAI
 #from langchain_openai import OpenAIEmbeddings
 from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
+from langchain_community.cross_encoders import HuggingFaceCrossEncoder
+from langchain.retrievers import ContextualCompressionRetriever
+from langchain.retrievers.document_compressors import CrossEncoderReranker
 from langchain_core.documents import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from .forms import CreateThread, CreateMessage, CreateFile
@@ -18,6 +21,7 @@ llm = ChatOpenAI(model=os.environ['LLM_MODEL'],
                  api_key=os.environ['LLM_API_KEY'],
                  base_url=os.environ['LLM_API_BASE'])
 embeddings = HuggingFaceEndpointEmbeddings(model=os.environ['EMBEDDING_API_BASE'])
+reranker = HuggingFaceCrossEncoder(model_name=os.environ['RERANK_MODEL'])
 index_path = '../faiss_index'
 
 # Create your views here.
@@ -55,8 +59,16 @@ def add_message(request):
     message.save()
     vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
     retriever = vectorstore.as_retriever(search_type='similarity',
-                                         search_kwargs={'k': 2})
-    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
+                                         search_kwargs={'k': 10})
+    compressor = CrossEncoderReranker(model=reranker, top_n=1)
+    compression_retriever = ContextualCompressionRetriever(
+        base_compressor=compressor, base_retriever=retriever
+    )
+
+    #compressed_docs = compression_retriever.invoke(message.content)
+    #print(compressed_docs, '!!!!!!!!!!!!!!!!')
+
+    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=compression_retriever)
     result = qa.run(message.content)
     Message(content=result, type='ai', thread=message.thread).save()
     return Response({'content': result}, status=200)
