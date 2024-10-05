@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from langchain_openai import ChatOpenAI
-from langchain_openai import OpenAIEmbeddings
+#from langchain_openai import OpenAIEmbeddings
+from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
 from langchain_core.documents import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from .forms import CreateThread, CreateMessage, CreateFile
@@ -16,8 +17,7 @@ from langchain.chains.retrieval_qa.base import RetrievalQA
 llm = ChatOpenAI(model=os.environ['LLM_MODEL'],
                  api_key=os.environ['LLM_API_KEY'],
                  base_url=os.environ['LLM_API_BASE'])
-embeddings = OpenAIEmbeddings(api_key=os.environ['LLM_API_KEY'],
-                              base_url=os.environ['LLM_API_BASE'])
+embeddings = HuggingFaceEndpointEmbeddings(model=os.environ['EMBEDDING_API_BASE'])
 index_path = '../faiss_index'
 
 # Create your views here.
@@ -53,7 +53,6 @@ def add_message(request):
     message.type = 'user'
     message.thread = Thread.objects.get(id=request.POST.get('thread_id'))
     message.save()
-
     vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
     retriever = vectorstore.as_retriever(search_type='similarity',
                                          search_kwargs={'k': 2})
