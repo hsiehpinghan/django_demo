@@ -1,6 +1,6 @@
 services:
   app:
-    image: hsiehpinghan/django_demo:0.6.0
+    image: hsiehpinghan/django_demo:0.7.0
     restart: always
     environment:
       LLM_MODEL: Qwen/Qwen2-0.5B-Instruct
