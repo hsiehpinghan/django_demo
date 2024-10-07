@@ -1,0 +1,31 @@
+services:
+  app:
+    image: hsiehpinghan/django_demo:0.6.0
+    restart: always
+    environment:
+      LLM_MODEL: Qwen/Qwen2-0.5B-Instruct
+      LLM_API_KEY: Placeholder
+      LLM_API_BASE: http://tgi:80/v1
+      EMBEDDING_API_BASE: http://tei_embedding:80
+      RERANK_MODEL: BAAI/bge-reranker-base
+      DIFY_API_KEY: app-JocdPFu5YXhIsPsTRbHPdKL0
+    ports:
+      - "80:8000"
+    depends_on:
+      - tgi
+      - tei_embedding
+
+  tgi:
+    image: ghcr.io/huggingface/text-generation-inference:2.2.0
+    command: --model-id Qwen/Qwen2-0.5B-Instruct
+    restart: always
+    environment:
+      HF_TOKEN: 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
+    volumes:
+      - /home/hsiehpinghan/Desktop/data:/data
+
+  tei_embedding:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.0
+    command: --model-id intfloat/multilingual-e5-large-instruct --revision baa7be480a7de1539afce709c8f13f833a510e0a
+    volumes:
+      - /home/hsiehpinghan/Desktop/data:/data
