@@ -17,6 +17,7 @@ from .serializers import ThreadSerializer, MessageSerializer
 from langchain_community.vectorstores import FAISS
 from langchain.chains.retrieval_qa.base import RetrievalQA
 from .tools import CountCharactersTool
+from django.views.decorators.csrf import csrf_protect
 
 llm = ChatOpenAI(model=os.environ['LLM_MODEL'],
                  api_key=os.environ['LLM_API_KEY'],
@@ -29,11 +30,13 @@ reranker = HuggingFaceCrossEncoder(model_name=os.environ['RERANK_MODEL'],
 index_path = 'faiss_index'
 
 # Create your views here.
+@csrf_protect
 @login_required(login_url='/login/')
 def index(request):
     return render(request, 'index.html')
 
 @api_view(['GET'])
+@csrf_protect
 @login_required(login_url='/login/')
 def get_threads(request):
     threads = Thread.objects.filter(user=request.user).order_by('created_at')
@@ -41,6 +44,7 @@ def get_threads(request):
     return Response(serializer.data, status=200)
 
 @api_view(['POST'])
+@csrf_protect
 @login_required(login_url='/login/')
 def add_thread(request):
     form = CreateThread(request.POST)
@@ -52,6 +56,7 @@ def add_thread(request):
     return Response({'id': thread.id, 'name': thread.name}, status=200)
 
 @api_view(['POST'])
+@csrf_protect
 @login_required(login_url='/login/')
 def add_message(request):
     form = CreateMessage(request.POST)
@@ -74,6 +79,7 @@ def add_message(request):
     return Response({'content': result}, status=200)
 
 @api_view(['POST'])
+@csrf_protect
 @login_required(login_url='/login/')
 def get_messages(request):
     thread = Thread.objects.get(id=request.POST.get('thread_id'))
@@ -82,6 +88,7 @@ def get_messages(request):
     return Response(serializer.data, status=200)
 
 @api_view(['POST'])
+@csrf_protect
 @login_required(login_url='/login/')
 def upload_file(request):
     form = CreateFile(request.POST, request.FILES)
