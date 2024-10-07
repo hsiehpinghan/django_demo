@@ -16,13 +16,17 @@ from .models import Thread, Message, File
 from .serializers import ThreadSerializer, MessageSerializer
 from langchain_community.vectorstores import FAISS
 from langchain.chains.retrieval_qa.base import RetrievalQA
+from .tools import CountCharactersTool
 
 llm = ChatOpenAI(model=os.environ['LLM_MODEL'],
                  api_key=os.environ['LLM_API_KEY'],
                  base_url=os.environ['LLM_API_BASE'])
+llm.bind_tools([CountCharactersTool()])
 embeddings = HuggingFaceEndpointEmbeddings(model=os.environ['EMBEDDING_API_BASE'])
-reranker = HuggingFaceCrossEncoder(model_name=os.environ['RERANK_MODEL'])
-index_path = '../faiss_index'
+reranker = HuggingFaceCrossEncoder(model_name=os.environ['RERANK_MODEL'],
+                                   model_kwargs={'cache_dir': 'hf_cache'})
+
+index_path = 'faiss_index'
 
 # Create your views here.
 @login_required(login_url='/login/')
@@ -64,10 +68,6 @@ def add_message(request):
     compression_retriever = ContextualCompressionRetriever(
         base_compressor=compressor, base_retriever=retriever
     )
-
-    #compressed_docs = compression_retriever.invoke(message.content)
-    #print(compressed_docs, '!!!!!!!!!!!!!!!!')
-
     qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=compression_retriever)
     result = qa.run(message.content)
     Message(content=result, type='ai', thread=message.thread).save()

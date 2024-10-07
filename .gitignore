@@ -6,4 +6,6 @@ db.sqlite3
 node_modules/
 .env
 /app/files
-/faiss_index
+faiss_index
+hf_cache
+

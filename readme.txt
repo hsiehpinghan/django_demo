@@ -34,7 +34,7 @@ docker run -itd \
     --name tgi \
     -e HF_TOKEN=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 \
     -p 10080:80 \
-    -v /tmp/data:/data \
+    -v /home/hsiehpinghan/Desktop/data:/data \
     ghcr.io/huggingface/text-generation-inference:2.2.0 \
     --model-id Qwen/Qwen2-0.5B-Instruct
 curl http://127.0.0.1:10080/generate_stream \
@@ -45,7 +45,7 @@ curl http://127.0.0.1:10080/generate_stream \
 docker run -itd \
     --name tei_embedding \
     -p 10081:80 \
-    -v /tmp/data:/data \
+    -v /home/hsiehpinghan/Desktop/data:/data \
     ghcr.io/huggingface/text-embeddings-inference:cpu-1.0 \
     --model-id intfloat/multilingual-e5-large-instruct \
     --revision baa7be480a7de1539afce709c8f13f833a510e0a
@@ -54,13 +54,22 @@ curl 127.0.0.1:10081/embed \
     -d '{"inputs":"What is Deep Learning?"}' \
     -H 'Content-Type: application/json'
 
-
-
-
 # export
 cd /home/hsiehpinghan/git/django_demo/
 poetry export -f requirements.txt -o requirements.txt --without-hashes
-docker build -t django_demo:0.1.0 .
+docker build -t django_demo:0.5.0 .
+docker run -itd \
+    --name app \
+    -p 80:8000 \
+    --link tgi:tgi \
+    --link tei_embedding:tei_embedding \
+    -e LLM_MODEL=Qwen/Qwen2-0.5B-Instruct \
+    -e LLM_API_KEY=Placeholder \
+    -e LLM_API_BASE=http://tgi:80/v1 \
+    -e EMBEDDING_API_BASE=http://tei_embedding:80 \
+    -e RERANK_MODEL=BAAI/bge-reranker-base \
+    django_demo:0.5.0
+
 
 docker login
 docker push myapp:1.0
