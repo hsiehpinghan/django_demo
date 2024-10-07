@@ -26,6 +26,7 @@ poetry run python manage.py makemigrations
 poetry run python manage.py migrate
 poetry run python manage.py createsuperuser
 poetry run python manage.py startapp chatbot
+poetry run python manage.py startapp workflow
 poetry run python manage.py runserver
 
 # docker

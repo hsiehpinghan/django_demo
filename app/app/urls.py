@@ -24,4 +24,5 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('chatbot/', include('chatbot.urls')),
+    path('workflow/', include('workflow.urls')),
 ]
