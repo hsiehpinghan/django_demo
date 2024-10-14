@@ -8,4 +8,7 @@ node_modules/
 /app/files
 faiss_index
 hf_cache
+*.onnx
+*.model
+*.log
 

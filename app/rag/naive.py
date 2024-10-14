@@ -213,5 +213,5 @@ if __name__ == "__main__":
     def dummy(prog=None, msg=""):
         pass
 
-    result = chunk('/home/hsiehpinghan/Desktop/test.txt', from_page=0, to_page=10, callback=dummy)
+    result = chunk('/home/hsiehpinghan/Downloads/miruten_manual_zh_cn.pdf', from_page=0, to_page=1000, callback=dummy)
     print(result)

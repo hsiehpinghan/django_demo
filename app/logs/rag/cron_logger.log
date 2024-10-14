@@ -1,2 +1,9 @@
 naive_merge(/home/hsiehpinghan/git/django_demo/readme.txt): 0.021658534999005497
 naive_merge(/home/hsiehpinghan/Desktop/test.txt): 0.028728694000164978
+naive_merge(/home/hsiehpinghan/Downloads/C-001資訊資產異動作業說明書.docx): 0.0263143289994332
+OCR(0~10): 47.66129931899923
+layouts: 2.6272784209941165
+naive_merge(/home/hsiehpinghan/Downloads/miruten_manual_zh_cn.pdf): 0.2724512880013208
+OCR(0~1000): 213.81639229800203
+layouts: 15.052155226003379
+naive_merge(/home/hsiehpinghan/Downloads/miruten_manual_zh_cn.pdf): 1.3326852390018757
