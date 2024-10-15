@@ -21,6 +21,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+# 創建 faiss_index 目錄並設置權限
+RUN mkdir -p /app/faiss_index && chmod 777 /app/faiss_index
+
 # 暴露端口 8000 供外部訪問
 EXPOSE 8000
 

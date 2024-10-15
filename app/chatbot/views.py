@@ -69,15 +69,21 @@ def add_message(request):
     message.type = 'user'
     message.thread = Thread.objects.get(id=request.POST.get('thread_id'))
     message.save()
-    vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
-    retriever = vectorstore.as_retriever(search_type='similarity',
-                                         search_kwargs={'k': 10})
-    compressor = CrossEncoderReranker(model=reranker, top_n=1)
-    compression_retriever = ContextualCompressionRetriever(
-        base_compressor=compressor, base_retriever=retriever
-    )
-    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=compression_retriever)
-    result = qa.run(message.content)
+    
+    if os.path.exists(index_path) and (len(os.listdir(index_path)) > 0):
+        vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
+        retriever = vectorstore.as_retriever(search_type='similarity',
+                                             search_kwargs={'k': 10})
+        compressor = CrossEncoderReranker(model=reranker, top_n=1)
+        compression_retriever = ContextualCompressionRetriever(
+            base_compressor=compressor, base_retriever=retriever
+        )
+        qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=compression_retriever)
+        result = qa.run(message.content)
+    else:
+        # 如果索引不存在，直接使用 LLM 回答
+        result = llm.predict(message.content)
+    
     Message(content=result, type='ai', thread=message.thread).save()
     return Response({'content': result}, status=200)
 
@@ -106,19 +112,21 @@ def upload_file(request):
 @csrf_protect
 @login_required(login_url='/login/')
 def show_knowledge_base(request):
-    vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
-    # 獲取所有文檔
-    all_docs = list(vectorstore.docstore._dict.values())
-    # 將文檔轉換為可序列化的格式
-    serialized_docs = [
-        {
-            'content': doc.page_content,
-            'metadata': doc.metadata
-        } for doc in all_docs
-    ]
+    if os.path.exists(index_path) and (len(os.listdir(index_path)) > 0):
+        vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
+        # 獲取所有文檔
+        all_docs = list(vectorstore.docstore._dict.values())
+        # 將文檔轉換為可序列化的格式
+        serialized_docs = [
+            {
+                'content': doc.page_content,
+                'metadata': doc.metadata
+            } for doc in all_docs
+        ]
+    else:
+        serialized_docs = []
     return render(request, 'knowledge_base.html', {'chunks': serialized_docs})
 
-       
 def _save_to_vector_db(file_path):
     chunks = get_chunks(file_path)
     text_splitter = RecursiveCharacterTextSplitter(
@@ -137,13 +145,14 @@ def _save_to_vector_db(file_path):
             ))
     
     # 加載現有的向量存儲（如果存在）
-    if os.path.exists(index_path):
+    if os.path.exists(index_path) and (len(os.listdir(index_path)) > 0):
         vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
     else:
-        vectorstore = FAISS.from_documents([], embeddings)
+        vectorstore = FAISS.from_documents(documents, embeddings)
 
     # 將新文檔添加到現有的向量存儲中
-    vectorstore.add_documents(documents)
+    if documents:
+        vectorstore.add_documents(documents)
     
     # 保存更新後的向量存儲
     vectorstore.save_local(index_path)

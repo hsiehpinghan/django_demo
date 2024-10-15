@@ -82,7 +82,7 @@ curl 127.0.0.1:10081/embed \
 # export
 cd /home/hsiehpinghan/git/django_demo/
 poetry export -f requirements.txt -o requirements.txt --without-hashes
-docker build -t django_demo:0.8.0 .
+docker build -t django_demo:0.9.0 .
 docker run -itd \
     --name app \
     -p 80:8000 \
@@ -93,11 +93,10 @@ docker run -itd \
     -e LLM_API_BASE=http://tgi:80/v1 \
     -e EMBEDDING_API_BASE=http://tei_embedding:80 \
     -e RERANK_MODEL=BAAI/bge-reranker-base \
-    django_demo:0.8.0
-docker tag django_demo:0.8.0 hsiehpinghan/django_demo:0.8.0
-docker compose up -d
+    django_demo:0.9.0
+docker tag django_demo:0.9.0 hsiehpinghan/django_demo:0.9.0
 docker login
-docker push hsiehpinghan/django_demo:0.8.0
+docker push hsiehpinghan/django_demo:0.9.0
 
 # gcp
 https://docs.docker.com/engine/install/ubuntu/
