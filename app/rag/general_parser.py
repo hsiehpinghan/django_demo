@@ -3,11 +3,11 @@ from io import BytesIO
 from docx import Document
 from timeit import default_timer as timer
 import re
-from parser.pdf_parser import PlainParser
-from nlp import rag_tokenizer, naive_merge, tokenize_table, tokenize_chunks, find_codec, concat_img, naive_merge_docx, tokenize_chunks_docx
-from parser import PdfParser, DocxParser, TxtParser
-from settings import cron_logger
-from utils import num_tokens_from_string
+from rag.parser.pdf_parser import PlainParser
+from rag.nlp import rag_tokenizer, naive_merge, tokenize_table, tokenize_chunks, find_codec, concat_img, naive_merge_docx, tokenize_chunks_docx
+from rag.parser import PdfParser, DocxParser, TxtParser
+from rag.settings import cron_logger
+from rag.utils import num_tokens_from_string
 from PIL import Image
 from functools import reduce
 from markdown import markdown
@@ -134,16 +134,12 @@ class Pdf(PdfParser):
         cron_logger.info("layouts: {}".format(timer() - start))
         return [(b["text"], self._line_tag(b, zoomin))
                 for b in self.boxes], tbls
+    
+def dummy(prog=None, msg=""):
+    pass
 
-def chunk(filename, binary=None, from_page=0, to_page=100000,
-          lang="Chinese", callback=None, **kwargs):
-    """
-        Supported file formats are docx, pdf, excel, txt.
-        This method apply the naive ways to chunk files.
-        Successive text will be sliced into pieces using 'delimiter'.
-        Next, these successive pieces are merge into chunks whose token number is no more than 'Max token number'.
-    """
-
+def get_chunks(filename, binary=None, from_page=0, to_page=100000,
+          lang="Chinese", callback=dummy, **kwargs):
     eng = lang.lower() == "english"  # is_english(cks)
     parser_config = kwargs.get(
         "parser_config", {
@@ -210,8 +206,5 @@ def chunk(filename, binary=None, from_page=0, to_page=100000,
 if __name__ == "__main__":
     import sys
 
-    def dummy(prog=None, msg=""):
-        pass
-
-    result = chunk('/home/hsiehpinghan/Downloads/miruten_manual_zh_cn.pdf', from_page=0, to_page=1000, callback=dummy)
+    result = get_chunks('/home/hsiehpinghan/Downloads/miruten_manual_zh_cn.pdf', from_page=0, to_page=1000)
     print(result)

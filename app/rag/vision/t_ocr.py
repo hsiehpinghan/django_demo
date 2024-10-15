@@ -8,8 +8,8 @@ sys.path.insert(
                 os.path.abspath(__file__)),
             '../../')))
 
-from vision.seeit import draw_box
-from vision import OCR, init_in_out
+from rag.vision.seeit import draw_box
+from rag.vision import OCR, init_in_out
 import argparse
 import numpy as np
 

@@ -12,9 +12,9 @@ import numpy as np
 from timeit import default_timer as timer
 from pypdf import PdfReader as pdf2_read
 
-from utils.file_utils import get_project_base_directory
-from vision import OCR, Recognizer, LayoutRecognizer, TableStructureRecognizer
-from nlp import rag_tokenizer
+from rag.utils.file_utils import get_project_base_directory
+from rag.vision import OCR, Recognizer, LayoutRecognizer, TableStructureRecognizer
+from rag.nlp import rag_tokenizer
 from copy import deepcopy
 from huggingface_hub import snapshot_download
 

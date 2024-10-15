@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Thread, Message
+from .models import Thread, Message, Chunk
 
 class ThreadSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,3 +15,8 @@ class MessageSerializer(serializers.ModelSerializer):
 
     def get_thread_id(self, obj):
         return obj.thread.id
+
+class ChunkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chunk
+        fields = ['id', 'file', 'content']

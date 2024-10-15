@@ -4,7 +4,7 @@ import re
 import os
 import numpy as np
 from rag.nlp import rag_tokenizer
-from utils.file_utils import get_project_base_directory
+from rag.utils.file_utils import get_project_base_directory
 
 
 class Dealer:

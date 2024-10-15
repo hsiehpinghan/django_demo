@@ -26,3 +26,11 @@ class File(models.Model):
 
     def __str__(self):
         return f"File for {self.created_at}"
+
+class Chunk(models.Model):
+    file = models.ForeignKey(File, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Chunk for {self.content}"

@@ -18,6 +18,7 @@ from langchain_community.vectorstores import FAISS
 from langchain.chains.retrieval_qa.base import RetrievalQA
 from .tools import CountCharactersTool
 from django.views.decorators.csrf import csrf_protect
+from rag.general_parser import get_chunks
 
 llm = ChatOpenAI(model=os.environ['LLM_MODEL'],
                  api_key=os.environ['LLM_API_KEY'],
@@ -101,6 +102,9 @@ def upload_file(request):
     return Response({'success': True}, status=200)
             
 def _save_to_vector_db(file_path):
+    chunks = get_chunks(file_path)
+    print('!!!!!!!!!!!!!!!!!!!!!', chunks)
+
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=128)

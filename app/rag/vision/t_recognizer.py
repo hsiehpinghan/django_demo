@@ -7,9 +7,9 @@ sys.path.insert(
                 os.path.abspath(__file__)),
             '../../')))
 
-from vision.seeit import draw_box
-from vision import Recognizer, LayoutRecognizer, TableStructureRecognizer, OCR, init_in_out
-from utils.file_utils import get_project_base_directory
+from rag.vision.seeit import draw_box
+from rag.vision import Recognizer, LayoutRecognizer, TableStructureRecognizer, OCR, init_in_out
+from rag.utils.file_utils import get_project_base_directory
 import argparse
 import re
 import numpy as np

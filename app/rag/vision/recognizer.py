@@ -4,7 +4,7 @@ from copy import deepcopy
 import onnxruntime as ort
 from huggingface_hub import snapshot_download
 
-from utils.file_utils import get_project_base_directory
+from rag.utils.file_utils import get_project_base_directory
 from .operators import *
 
 

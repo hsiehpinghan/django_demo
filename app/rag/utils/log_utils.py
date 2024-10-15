@@ -6,7 +6,7 @@ import inspect
 from logging.handlers import TimedRotatingFileHandler
 from threading import RLock
 
-from utils import file_utils
+from rag.utils import file_utils
 
 
 class LoggerFactory(object):

@@ -1,4 +1,4 @@
-from nlp import find_codec,num_tokens_from_string
+from rag.nlp import find_codec,num_tokens_from_string
 import re
 
 class RAGFlowTxtParser:

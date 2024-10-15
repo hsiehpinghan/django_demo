@@ -5,8 +5,8 @@ from copy import deepcopy
 import numpy as np
 from huggingface_hub import snapshot_download
 
-from utils.file_utils import get_project_base_directory
-from vision import Recognizer
+from rag.utils.file_utils import get_project_base_directory
+from rag.vision import Recognizer
 
 
 class LayoutRecognizer(Recognizer):
