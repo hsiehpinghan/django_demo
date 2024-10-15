@@ -102,7 +102,7 @@
             <input
               type="file"
               id="file-input"
-              accept=".txt"
+              accept=".txt,.docx,.pdf"
               style="display: none"
               onchange="handleFileUpload(event)"
             />
@@ -320,13 +320,19 @@
 
       function handleFileUpload(event) {
         const file = event.target.files[0];
-        if (file && file.type === "text/plain") {
+        const allowedTypes = [
+          "text/plain",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "application/pdf",
+        ];
+
+        if (file && allowedTypes.includes(file.type)) {
           const formData = new FormData();
           formData.append("file", file);
           formData.append("thread_id", current_thread.id);
           formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
 
-          showLoadingSpinner(); // 顯示全屏加載動畫
+          showLoadingSpinner();
 
           fetch("/chatbot/upload_file/", {
             method: "POST",
@@ -334,7 +340,7 @@
           })
             .then((response) => response.json())
             .then((data) => {
-              hideLoadingSpinner(); // 隱藏全屏加載動畫
+              hideLoadingSpinner();
               if (data.success) {
                 addMessage(`文件 "${file.name}" 已成功上傳`, "ai");
               } else {
@@ -343,11 +349,11 @@
             })
             .catch((error) => {
               console.error("Error:", error);
-              hideLoadingSpinner(); // 確保在發生錯誤時也隱藏加載動畫
+              hideLoadingSpinner();
               addMessage("上傳文件時發生錯誤。請稍後再試。", "ai");
             });
         } else {
-          alert("請上傳 .txt 文件");
+          alert("請上傳 .txt、.docx 或 .pdf 文件");
         }
       }
 

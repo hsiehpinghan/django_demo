@@ -10,5 +10,5 @@ faiss_index
 hf_cache
 *.onnx
 *.model
-*.log
+**/*.log
 

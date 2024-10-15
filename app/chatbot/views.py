@@ -19,6 +19,8 @@ from langchain.chains.retrieval_qa.base import RetrievalQA
 from .tools import CountCharactersTool
 from django.views.decorators.csrf import csrf_protect
 from rag.general_parser import get_chunks
+from .models import Chunk
+from .serializers import ChunkSerializer
 
 llm = ChatOpenAI(model=os.environ['LLM_MODEL'],
                  api_key=os.environ['LLM_API_KEY'],
@@ -100,17 +102,55 @@ def upload_file(request):
     file.save()
     _save_to_vector_db(file.file.path)
     return Response({'success': True}, status=200)
-            
+
+@csrf_protect
+@login_required(login_url='/login/')
+def show_knowledge_base(request):
+    vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
+    # 獲取所有文檔
+    all_docs = list(vectorstore.docstore._dict.values())
+    # 將文檔轉換為可序列化的格式
+    serialized_docs = [
+        {
+            'content': doc.page_content,
+            'metadata': doc.metadata
+        } for doc in all_docs
+    ]
+
+
+    print('??????????????', serialized_docs)
+    return render(request, 'knowledge_base.html', {'chunks': serialized_docs})
+
+       
 def _save_to_vector_db(file_path):
     chunks = get_chunks(file_path)
     print('!!!!!!!!!!!!!!!!!!!!!', chunks)
 
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=128)
-    chunks = text_splitter.split_text(content)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=400,
+        chunk_overlap=50,
+        length_function=len,
+    )
+    
     documents = []
     for chunk in chunks:
-        documents.append(Document(page_content=chunk))
-    vectorstore = FAISS.from_documents(documents, embeddings)
+        texts = text_splitter.split_text(chunk['content_with_weight'])
+        for text in texts:
+            documents.append(Document(
+                page_content=text,
+                metadata={'source': chunk['docnm_kwd'].split('/')[-1]}
+            ))
+    
+    # 加載現有的向量存儲（如果存在）
+    if os.path.exists(index_path):
+        vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
+    else:
+        vectorstore = FAISS.from_documents([], embeddings)
+
+    # 將新文檔添加到現有的向量存儲中
+    vectorstore.add_documents(documents)
+    
+    # 保存更新後的向量存儲
     vectorstore.save_local(index_path)
+
+    print(f"已成功將文件添加到向量數據庫，共處理 {len(documents)} 個文檔片段。")

@@ -10,4 +10,5 @@ urlpatterns = [
     path('add_message/', views.add_message, name='add_message'),
     path('get_messages/', views.get_messages, name='get_messages'),
     path('upload_file/', views.upload_file, name='upload_file'),
+    path('knowledge_base/', views.show_knowledge_base, name='knowledge_base'),
 ]
