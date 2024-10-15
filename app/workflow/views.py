@@ -23,7 +23,6 @@ def index(request):
 @login_required(login_url='/login/')
 def get_html(request):
     content = request.POST.get('content')
-    print(content, '!!!!!!!!!!!!!!!!!!!!!!!')
     data = {
         "inputs": {},
         "query": content,

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-demo"
-version = "0.7.0"
+version = "0.8.0"
 description = ""
 authors = ["hsiehpinghan <thank.hsiehpinghan@gmail.com>"]
 readme = "README.md"
@@ -24,7 +24,6 @@ markdown = "3.6"
 cachetools = "5.3.3"
 ruamel-yaml = "0.18.6"
 strenum = "0.4.15"
-onnxruntime-gpu = "1.17.1"
 datrie = "0.8.2"
 hanziconv = "0.3.2"
 nltk = "3.8.1"
@@ -38,6 +37,7 @@ word2number = "1.1"
 cn2an = "0.5.22"
 pandas = "2.2.1"
 pycryptodomex = "3.20.0"
+onnxruntime-gpu = "1.17.1"
 
 
 [build-system]

@@ -116,16 +116,11 @@ def show_knowledge_base(request):
             'metadata': doc.metadata
         } for doc in all_docs
     ]
-
-
-    print('??????????????', serialized_docs)
     return render(request, 'knowledge_base.html', {'chunks': serialized_docs})
 
        
 def _save_to_vector_db(file_path):
     chunks = get_chunks(file_path)
-    print('!!!!!!!!!!!!!!!!!!!!!', chunks)
-
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=400,
         chunk_overlap=50,

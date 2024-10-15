@@ -4,8 +4,17 @@ FROM python:3.10-slim
 # 設置工作目錄
 WORKDIR /app
 
-# 安裝項目依賴
-COPY ./requirements.txt /app
+# 更新包列表並安裝所需的包
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安裝 datrie
+RUN pip install datrie
+
+# 複製並安裝項目依賴
+COPY ./requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 設置環境變量
